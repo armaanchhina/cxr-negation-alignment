@@ -1,5 +1,5 @@
 import json
-
+from sklearn.model_selection import train_test_split
 
 def format_text(finding, report):
     return f"FINDING {finding} [SEP] REPORT: {report}"
@@ -39,6 +39,17 @@ def label_data(data: dict):
 def main():
     raw_data = load_file()
     samples = label_data(raw_data)
+    
     print("Total Samples: ", len(samples))
+
+    train_samples, val_samples = train_test_split(
+        samples,
+        test_size=0.2,
+        random_state=42,
+        stratify=[s["label"] for s in samples] # keeps the label proportions same
+    )
+
+    print(f"Train size: {len(train_samples)}")
+    print(f"Val size: {len(val_samples)}")
 
 main()
