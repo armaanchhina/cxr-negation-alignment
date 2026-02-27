@@ -1,5 +1,9 @@
 import json
 from sklearn.model_selection import train_test_split
+from transformers import AutoTokenizer
+from cxr_dataset import CXRTextDataset
+from torch.utils.data import DataLoader
+
 
 def format_text(finding, report):
     return f"FINDING {finding} [SEP] REPORT: {report}"
@@ -51,5 +55,13 @@ def main():
 
     print(f"Train size: {len(train_samples)}")
     print(f"Val size: {len(val_samples)}")
+
+    tokenizer = AutoTokenizer.from_pretrained("emilyalsentzer/Bio_ClinicalBERT")
+
+    train_dataset = CXRTextDataset(train_samples, tokenizer)
+    val_dataset = CXRTextDataset(val_samples, tokenizer)
+
+    train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False)
 
 main()
