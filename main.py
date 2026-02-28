@@ -3,7 +3,9 @@ from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer
 from cxr_dataset import CXRTextDataset
 from torch.utils.data import DataLoader
-
+from model import ClinicalBERTClassifier
+import torch
+import torch.nn as nn
 
 def format_text(finding, report):
     return f"FINDING {finding} [SEP] REPORT: {report}"
@@ -63,5 +65,21 @@ def main():
 
     train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = ClinicalBERTClassifier(num_classess=3).to(device=device)
+
+    criterion = nn.CrossEntropyLoss()
+
+    batch = next(iter(train_loader))
+    input_ids = batch["input_ids"].to(device)
+    attention_mask = batch["attention_mask"].to(device)
+    labels = batch["labels"].to(device)
+
+    logits = model(input_ids=input_ids, attention_mask=attention_mask)
+
+    print("logit: ", logits)
+    loss = criterion(logits,labels)
+    print("loss: ", loss.item())
 
 main()
