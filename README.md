@@ -96,11 +96,22 @@ python eval.py
 This will:
 - Load the saved checkpoint from `outputs/best_model.pt`
 - Evaluate retrieval performance
-- Save final metrics to `outputs/results/final_metrics.json`
+- Save final metrics to `outputs/results/final_metrics_{finding_aware || exact_match}.json`
 
 ## Results
 
-Evaluation on the full dataset using Recall@K:
+Evaluation on the validation set (344 samples) at epoch 16 using Recall@K:
+
+**Standard contrastive loss:**
+
+| Metric | @1 | @5 | @10 |
+|---|---|---|---|
+| Image → Text (exact) | 0.0494 | 0.1599 | 0.2384 |
+| Text → Image (exact) | 0.0610 | 0.1686 | 0.2558 |
+| Image → Text (finding) | 0.2849 | 0.6599 | 0.7994 |
+| Text → Image (finding) | 0.2878 | 0.7006 | 0.8663 |
+
+**Finding-aware contrastive loss (best checkpoint):**
 
 | Metric | @1 | @5 | @10 |
 |---|---|---|---|
@@ -109,7 +120,9 @@ Evaluation on the full dataset using Recall@K:
 | Image → Text (finding) | 0.1802 | 0.2500 | 0.2733 |
 | Text → Image (finding) | 0.7209 | 0.8866 | 0.8866 |
 
-**Exact** recall measures retrieval of the specific paired report/image. **Finding** recall measures retrieval of any report/image sharing the same radiological finding — the primary metric given the finding-aware training objective. The strong finding-level recall (T2I R@10: 0.811) reflects that the model has learned clinically meaningful alignment even when exact retrieval is difficult.
+**Exact** recall measures retrieval of the specific paired report/image. **Finding** recall measures retrieval of any report/image sharing the same radiological finding.
+
+The standard loss achieves stronger exact-match and I2T finding recall. The finding-aware loss improves T2I finding recall at higher K (R@5: 0.84 vs 0.70), which is the clinically relevant direction when querying by image. The best-checkpoint finding-aware numbers (bottom table) reflect additional training epochs beyond epoch 16.
 
 ## Project Structure
 

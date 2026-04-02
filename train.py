@@ -164,7 +164,7 @@ def main():
 
     best_r1 = 0.0
     no_improve = 0
-
+    suffix = "_finding_aware" if USE_FINDING_AWARE_LOSS else "_exact_match"
     for epoch in range(EPOCHS):
         train_metrics = train_one_epoch(
             model, train_loader, optimizer, device, scheduler,
@@ -186,8 +186,8 @@ def main():
 
         epoch_metrics = {**eval_results["metrics"], "train_loss": train_metrics["train_loss"]}
         analysis = eval_results["i2t_analysis"]
-        save_metrics(analysis, OUTPUT_DIR / f"analysis_epoch_{epoch+1}.json")
-        save_metrics(epoch_metrics, OUTPUT_DIR / f"metrics_epoch_{epoch+1}.json")
+        save_metrics(analysis, OUTPUT_DIR / f"analysis_epoch_{epoch+1}{suffix}.json")
+        save_metrics(epoch_metrics, OUTPUT_DIR / f"metrics_epoch_{epoch+1}{suffix}.json")
 
         if avg_r1 > best_r1:
             best_r1 = avg_r1
@@ -210,7 +210,7 @@ def main():
     model.eval()
 
     final_results = evaluate_retrieval(model, val_loader, device, top_k=5)
-    save_metrics(final_results["metrics"], OUTPUT_DIR / "final_metrics.json")
+    save_metrics(final_results["metrics"], OUTPUT_DIR / f"final_metrics{suffix}.json")
 
     logging.info("Final evaluation complete.")
 
